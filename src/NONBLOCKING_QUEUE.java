@@ -11,12 +11,12 @@ import java.util.Arrays;
 
 public class NONBLOCKING_QUEUE {
 	final int arraySize = 100;
-	private int[] nonBlockingArray = new int[arraySize];
+	public int[] nonBlockingArray = new int[arraySize];
 	public static int head = 0;
 	public static int tail = 0;
 
-	public NONBLOCKING_QUEUE(int[] nonBlockingArray) {
-		this.nonBlockingArray = nonBlockingArray;
+	public NONBLOCKING_QUEUE() {
+		// Preventing instantiation of this class
 	}
 
 	/**
