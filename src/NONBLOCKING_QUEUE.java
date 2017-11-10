@@ -1,9 +1,9 @@
 
 /**
- * 
  * This is the implementation of the lock-free queue
  * 
- * @author MBAdmin
+ * @author Danish Waheed
+ * @course COP 6616
  *
  */
 
@@ -11,11 +11,11 @@ import java.util.Arrays;
 
 public class NONBLOCKING_QUEUE {
 	final int arraySize = 100;
-	private int [] nonBlockingArray;
+	private int[] nonBlockingArray = new int[arraySize];
 	public static int head = 0;
 	public static int tail = 0;
-	
-	public NONBLOCKING_QUEUE(int [] nonBlockingArray){
+
+	public NONBLOCKING_QUEUE(int[] nonBlockingArray) {
 		this.nonBlockingArray = nonBlockingArray;
 	}
 
@@ -37,9 +37,17 @@ public class NONBLOCKING_QUEUE {
 	 * 
 	 * @param valueToAdd
 	 * @return A boolean
+	 * @throws QueueIsFullException
 	 */
-	boolean add(int valueToAdd) {
-		return false;
+	boolean add(int valueToAdd) throws QueueIsFullException {
+		if (isFull()) {
+			throw new QueueIsFullException("Cannot add to a full queue.");
+		} else {
+			nonBlockingArray[tail % arraySize] = valueToAdd;
+			tail++;
+
+			return true;
+		}
 	}
 
 	/**
@@ -47,9 +55,16 @@ public class NONBLOCKING_QUEUE {
 	 * removed.
 	 * 
 	 * @return An integer
+	 * @throws QueueIsEmptyException
 	 */
-	int remove() {
-		return 0;
+	int remove() throws QueueIsEmptyException {
+		if (isEmpty()) {
+			throw new QueueIsEmptyException("Cannot remove from an empty queue.");
+		} else {
+			int valueToRemove = nonBlockingArray[head % arraySize];
+			head++;
+			return valueToRemove;
+		}
 	}
 
 	/**
