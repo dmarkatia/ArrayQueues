@@ -1,21 +1,15 @@
-
-/**
- * This is the implementation of the lock-free queue
- * 
- * @author Danish Waheed
- * @course COP 6616
- *
- */
-
 import java.util.Arrays;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-public class NONBLOCKING_QUEUE implements Runnable {
+public class BLOCKING_QUEUE {
+	Lock lock = new ReentrantLock();
 	final int arraySize;
 	public int[] nonBlockingArray;
 	public static int head = 0;
 	public static int tail = 0;
 
-	public NONBLOCKING_QUEUE(int arraySize) {
+	public BLOCKING_QUEUE(int arraySize) {
 		this.nonBlockingArray = initializeQueue(arraySize);
 		this.arraySize = arraySize;
 	}
@@ -41,16 +35,24 @@ public class NONBLOCKING_QUEUE implements Runnable {
 	 * @throws QueueIsFullException
 	 */
 	boolean add(int valueToAdd) throws QueueIsFullException {
-		if (isFull()) {
-			// throw new QueueIsFullException("Cannot add to a full queue.");
-			// System.out.println("Cannot add to a full queue.");
-			return false;
-		} else {
-			nonBlockingArray[tail % arraySize] = valueToAdd;
-			tail++;
-			// System.out.println(valueToAdd + " added to the queue.\n");
-			return true;
+		lock.lock();
+		boolean addStatus;
+		try {
+			if (isFull()) {
+				// throw new QueueIsFullException("Cannot add to a full
+				// queue.");
+				// System.out.println("Cannot add to a full queue.");
+				addStatus = false;
+			} else {
+				nonBlockingArray[tail % arraySize] = valueToAdd;
+				tail++;
+				// System.out.println(valueToAdd + " added to the queue.\n");
+				addStatus = true;
+			}
+		} finally {
+			lock.unlock();
 		}
+		return addStatus;
 	}
 
 	/**
@@ -60,18 +62,26 @@ public class NONBLOCKING_QUEUE implements Runnable {
 	 * @return An integer
 	 * @throws QueueIsEmptyException
 	 */
+
 	int remove() throws QueueIsEmptyException {
-		if (isEmpty()) {
-			// System.out.println("Cannot remove from an empty queue.");
-			return -1;
-			// throw new QueueIsEmptyException("Cannot remove from an empty
-			// queue.");
-		} else {
-			int valueToRemove = nonBlockingArray[head % arraySize];
-			head++;
-			// System.out.println(valueToRemove + " removed from the queue.\n");
-			return valueToRemove;
+		lock.lock();
+		int valueToRemove = -1;
+		try {
+			if (isEmpty()) {
+				// System.out.println("Cannot remove from an empty queue.");
+				// throw new QueueIsEmptyException("Cannot remove from an empty
+				// queue.");
+			} else {
+				valueToRemove = nonBlockingArray[head % arraySize];
+				head++;
+				// System.out.println(valueToRemove + " removed from the
+				// queue.\n");
+
+			}
+		} finally {
+			lock.unlock();
 		}
+		return valueToRemove;
 	}
 
 	/**
@@ -99,7 +109,6 @@ public class NONBLOCKING_QUEUE implements Runnable {
 		return nonBlockingArray.length;
 	}
 
-	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 
